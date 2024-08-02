@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Extraction</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload Invoice Image</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="file-input" name="file" accept="image/png" />
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Extracted Tables</h2>
+    <div id="tables-container"></div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append('file', document.getElementById('file-input').files[0]);
+
+            const response = await fetch('/extract_tables', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            displayTables(data);
+        });
+
+        function displayTables(data) {
+            const container = document.getElementById('tables-container');
+            container.innerHTML = '';
+
+            if (data.tables.length === 0) {
+                container.innerHTML = '<p>No tables found.</p>';
+                return;
+            }
+
+            data.tables.forEach((table, tableIndex) => {
+                const tableElement = document.createElement('table');
+                const tableHeader = document.createElement('thead');
+                const tableBody = document.createElement('tbody');
+
+                // Create table headers
+                const headerRow = document.createElement('tr');
+                table.rows[0].forEach((header) => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                tableHeader.appendChild(headerRow);
+
+                // Create table rows
+                table.rows.slice(1).forEach((row) => {
+                    const tr = document.createElement('tr');
+                    row.forEach((cell) => {
+                        const td = document.createElement('td');
+                        td.textContent = cell;
+                        tr.appendChild(td);
+                    });
+                    tableBody.appendChild(tr);
+                });
+
+                tableElement.appendChild(tableHeader);
+                tableElement.appendChild(tableBody);
+                container.appendChild(tableElement);
+            });
+        }
+    </script>
+</body>
+</html>
