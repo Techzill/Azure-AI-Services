@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # Form Recognizer credentials and model ID
 endpoint = "https://msdocintproject.cognitiveservices.azure.com/"
-key = "5bce58fd168e42e2a8f6f425446c0ced"
+key = "5bce58fd1xxxxxxxxxx6c0ced"
 model_id = "composed_model"  
 
 # Initialize Form Recognizer client
